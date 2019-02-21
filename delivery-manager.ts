@@ -1,5 +1,5 @@
 import { IPackage } from "./packages";
-import { routes } from "./config";
+import { IRoute } from "./routes";
 import { ITransport, Car, Truck } from "./transport";
 
 interface IReport {
@@ -23,6 +23,11 @@ interface IDeliveryManager {
 export class DeliveryManager implements IDeliveryManager {
     orders: IPackage[] = [];
     loadedOrders: string[] = [];
+    routes: IRoute[];
+
+    constructor(routes: IRoute[]) {
+        this.routes = routes;
+    }
 
     takeOrders = (packages: IPackage[]) => {
         this.orders = packages;
@@ -39,14 +44,15 @@ export class DeliveryManager implements IDeliveryManager {
             packagesByRoutes: {}
         };
 
-        for (let i = 0; i < routes.length; i++) {
-            report.packagesByRoutes[routes[i].toLowerCase()] = {
+        for (let i = 0; i < this.routes.length; i++) {
+            report.packagesByRoutes[this.routes[i].slug] = {
                 totalPackages: 0,
                 smallPackages: 0,
                 largePackages: 0,
                 totalKG: 0,
                 smallPackagesKG: 0,
-                largePackagesKG: 0
+                largePackagesKG: 0,
+                route: this.routes[i]
             };
         }
 
@@ -54,7 +60,7 @@ export class DeliveryManager implements IDeliveryManager {
             let pack = this.orders[i];
             let weight: number = pack.weight;
             let isSmall: boolean = pack.weight === 2 ? true : false;
-            let route: string = routes[pack.route].toLowerCase();
+            let route: string = this.routes[pack.route].slug;
 
             report.totalOrders += 1;
             report.totalKG += weight;
@@ -78,15 +84,16 @@ export class DeliveryManager implements IDeliveryManager {
         const total = this.getReport();
         const ordersCopy = [...this.orders];
 
-        for (let i = 0; i < routes.length; i++) {
-            setting[routes[i].toLowerCase()] = {
+        for (let i = 0; i < this.routes.length; i++) {
+            setting[this.routes[i].slug] = {
                 trucks: [],
-                cars: []
+                cars: [],
+                route: this.routes[i]
             };
         }
 
-        for (let i = 0; i < routes.length; i++) {
-            let currentRoute = routes[i].toLowerCase();
+        for (let i = 0; i < this.routes.length; i++) {
+            let currentRoute = this.routes[i].slug;
             let currentTruck: ITransport;
             let currentCar: ITransport;
             let largeKG = total.packagesByRoutes[currentRoute].largePackagesKG;

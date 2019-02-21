@@ -1,5 +1,6 @@
 import { genRandom } from "./lib/lib";
 import { IPackage, SmallPackage, LargePackage } from "./packages";
+import { IRoute } from "./routes";
 
 interface IOrderAccepter {
     orders: IPackage[];
@@ -23,18 +24,20 @@ export class OrderAccepter implements IOrderAccepter {
 
 export class SimulateOrderAccepter extends OrderAccepter {
     orders: IPackage[] = [];
+    routes: IRoute[];
 
-    constructor() {
+    constructor(routes: IRoute[]) {
         super();
+        this.routes = routes;
     }
 
     simulateDay = (ordersCount: number): void => {
         for (let i = 0; i < ordersCount; i++) {
             let fakeOrder: IPackage;
             if (genRandom(1, 2) === 1) {
-                fakeOrder = new SmallPackage();
+                fakeOrder = new SmallPackage(this.routes);
             } else {
-                fakeOrder = new LargePackage();
+                fakeOrder = new LargePackage(this.routes);
             }
 
             this.getOrder(fakeOrder);

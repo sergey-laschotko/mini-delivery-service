@@ -1,1 +1,0 @@
-export const routes: string[] = ["Brest", "Vitebsk", "Gomel", "Grodno", "Minsk", "MinskCity", "Mogilev"];
